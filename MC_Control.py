@@ -69,11 +69,18 @@ def GetQvalue():
     Q = OptimizeQValue(Q)
     return Q
    
+def GetFilePath(name):
+    name = name.replace(' ', '_')
+    path = join('results', name + '.png')
+    return path
+    
 def Section2_Monte_Carlo_Control():
     Q = GetQvalue()
     V = np.max(Q, axis=-1)
-    path = join('results', 'Vstar.png')
-    Print2DFunction(V, range_dealer, range_player, path=path)
+    name_V = 'Qstar'
+    path_V = GetFilePath(name_V)
+    Print2DFunction(V, range_dealer, range_player, title=name_V, path=path_V)
+
 if __name__=='__main__':
     Section2_Monte_Carlo_Control()
     

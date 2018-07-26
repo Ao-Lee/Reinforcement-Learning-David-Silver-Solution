@@ -126,6 +126,11 @@ def Approximator2Q(app):
             for a in range(2):
                 Q[num_dealer, num_player, a] = app.EvaluateQValue(s, a)
     return Q
+   
+def GetFilePath(name):
+    name = name.replace(' ', '_')
+    path = join('results', name + '.png')
+    return path
     
 def Section4Question1(Qstar):
     list_lmbda = list(np.arange(0, 1, 0.1))
@@ -137,7 +142,7 @@ def Section4Question1(Qstar):
         list_mse.append(mse)
         
     name_mse = 'MSE loss with Function Approximation'
-    path_loss = join('results', name_mse + '.png')
+    path_loss = GetFilePath(name_mse)
     PrintLambdaMSE(list_lmbda, list_mse, title=name_mse, path=path_loss) 
     
 def Section4Question2(Qstar):
@@ -149,17 +154,17 @@ def Section4Question2(Qstar):
     V1 = np.max(Q1, axis=-1)
     
     name_loss = 'training loss with Function Approximation'
-    path_loss = join('results', name_loss + '.png')
+    path_loss = GetFilePath(name_loss)
     PrintLoss([mse_0, mse_1], tags=['lambda=0', 'lambda=1'], title=name_loss, path=path_loss)
     
-    name_Q0 = 'Q value with Function Approximation (lambda=0)'
-    path_Q0 = join('results', name_Q0 + '.png')
-    name_Q1 = 'Q value with Function Approximation (lambda=1)'
-    path_Q1 = join('results', name_Q1 + '.png')
+    name_Q0 = 'Q value with Function Approximation lambda=0'
+    path_Q0 = GetFilePath(name_Q0)
+    name_Q1 = 'Q value with Function Approximation lambda=1'
+    path_Q1 = GetFilePath(name_Q1)
     Print2DFunction(V0, range_dealer, range_player, title=name_Q0, path=path_Q0)
     Print2DFunction(V1, range_dealer, range_player, title=name_Q1, path=path_Q1)
     
 if __name__=='__main__':
-    # Qstar = GetQvalue()
+    Qstar = GetQvalue()
     Section4Question1(Qstar)
     Section4Question2(Qstar)
