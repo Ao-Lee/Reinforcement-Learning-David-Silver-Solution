@@ -1,5 +1,6 @@
 import numpy as np
 from tqdm import tqdm
+from os.path import join
 
 from env import InitState, Step, StateToCoord, IsTerminalState
 from env import range_dealer, range_player
@@ -7,7 +8,8 @@ from plot import Print2DFunction
 from policy import MyPolicy
 n0=20
 debug = False
-iteration = 500000
+iteration = 50000 if debug else 500000
+
 
 def GenerateEpisode(Q, history):
     # since discount factor is 1
@@ -44,11 +46,12 @@ def UpdateQ_MC(Q, simulation, history):
         # learning rate
         lr = 1 / history[x, y, a]
         Q[x, y, a] += lr * (final_reward - Q[x, y, a])
+        '''
         if debug and y == 20 and x == 5 and a== 0:
             visit_time = np.sum(history[x, y, :])
             epsilon = n0 / (n0 + visit_time)
             print('Q: {:.2f}\t return: {}\t lr: {:.2f} \t epsilon: {:.2f}'.format(Q[x, y, a], final_reward, lr, epsilon))
-
+        '''
 def OptimizeQValue(Q):
     # count of visit times for each state <sum_dealer, sum_player, action>
     history = np.zeros(shape=[10, 21, 2])
@@ -69,8 +72,9 @@ def GetQvalue():
 def Section2_Monte_Carlo_Control():
     Q = GetQvalue()
     V = np.max(Q, axis=-1)
-    Print2DFunction(V, range_dealer, range_player)
+    path = join('results', 'Vstar.png')
+    Print2DFunction(V, range_dealer, range_player, path=path)
 if __name__=='__main__':
     Section2_Monte_Carlo_Control()
-
+    
     

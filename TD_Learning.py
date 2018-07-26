@@ -1,5 +1,6 @@
 import numpy as np
 from tqdm import tqdm
+from os.path import join
 
 from env import InitState, Step, StateToCoord, IsTerminalState
 from env import range_dealer, range_player
@@ -39,12 +40,12 @@ def Update_TDLambda(Q, eligibility, history, s1, a1, r2, s2, a2, lmbda):
         print('Q: {:.2f}\t return: {}\t lr: {:.2f} \t epsilon: {:.2f}'.format(Q[x1, y1, a1], r2, lr, epsilon))
     '''   
         
-def SARSA_TDLambda(lmbda, Qstar=None):
+def SARSA_TDLambda(lmbda, iteration, Qstar=None):
     Q = np.zeros(shape=[10, 21, 2])
     history = np.zeros(shape=[10, 21, 2])
     mse = []
 
-    gen = range(100000) if debug else tqdm(range(100000))
+    gen = range(iteration//10) if debug else tqdm(range(iteration))
     for _ in gen:
         s1 = InitState()
         a1 = MyPolicy(s1, Q, history, n0=n0)
@@ -67,19 +68,29 @@ def Section3Question1(Qstar):
     list_lmbda = list(np.arange(0, 1, 0.1))
     list_mse = []
     for lmbda in list_lmbda:
-        Q, _ = SARSA_TDLambda(lmbda)
+        Q, _ = SARSA_TDLambda(lmbda, iteration=100000)
         mse = np.mean((Q-Qstar)**2)
         list_mse.append(mse)
-    PrintLambdaMSE(list_lmbda, list_mse) 
+    name_mse = 'MSE loss of TD learning'
+    path_loss = join('results', name_mse + '.png')
+    PrintLambdaMSE(list_lmbda, list_mse, title=name_mse, path=path_loss) 
     
 def Section3Question2(Qstar):
-    Q0, mse_0 = SARSA_TDLambda(lmbda=0, Qstar=Qstar)
-    Q1, mse_1 = SARSA_TDLambda(lmbda=1, Qstar=Qstar)
+    Q0, mse_0 = SARSA_TDLambda(lmbda=0, iteration=100000, Qstar=Qstar)
+    Q1, mse_1 = SARSA_TDLambda(lmbda=1, iteration=100000, Qstar=Qstar)
     V0 = np.max(Q0, axis=-1)
     V1 = np.max(Q1, axis=-1)
-    PrintLoss([mse_0, mse_1], tags=['lambda=0', 'lambda=1'])
-    Print2DFunction(V0, range_dealer, range_player, title='V* for lambda=0')
-    Print2DFunction(V1, range_dealer, range_player, title='V* for lambda=1')
+    
+    name_loss = 'training loss of TD learning'
+    path_loss = join('results', name_loss + '.png')
+    PrintLoss([mse_0, mse_1], tags=['lambda=0', 'lambda=1'], title=name_loss, path=path_loss)
+    
+    name_Q0 = 'Q value of TD learning (lambda=0)'
+    path_Q0 = join('results', name_Q0 + '.png')
+    name_Q1 = 'Q value of TD learning (lambda=1)'
+    path_Q1 = join('results', name_Q1 + '.png')
+    Print2DFunction(V0, range_dealer, range_player, title=name_Q0, path=path_Q0)
+    Print2DFunction(V1, range_dealer, range_player, title=name_Q1, path=path_Q1)
     
 if __name__=='__main__':
     Qstar = GetQvalue()

@@ -1,5 +1,6 @@
 import numpy as np
 from tqdm import tqdm
+from os.path import join
 
 from env import IsTerminalState, InitState, Step, actions_idx
 from env import range_dealer, range_player
@@ -68,7 +69,7 @@ def ToFeature(s, a):
     feature[mask_dealer[:, None], mask_player, a] = 1
     return feature
 
-def TestFeature():
+def _TestFeature():
     s = InitState()
     s['sum_dealer'] = 7
     s['sum_player'] = 17
@@ -90,11 +91,11 @@ def Update_TDLambda(approximator, eligibility, s1, a1, r2, s2, a2, lmbda):
     w_delta = lr * error * eligibility
     approximator.UpdateWeights(w_delta)
 
-def SARSA_TDLambda(lmbda, Qstar=None, iteration=1000):
+def SARSA_TDLambda(lmbda, iteration, Qstar=None):
     approximator = Approximator()
     mse = []
 
-    gen = range(iteration) if debug else tqdm(range(iteration))
+    gen = range(iteration//10) if debug else tqdm(range(iteration))
     for _ in gen:
         s1 = InitState()
         a1 = EpsilonGreedyPolicy(s1, epsilon, approximator)
@@ -130,26 +131,35 @@ def Section4Question1(Qstar):
     list_lmbda = list(np.arange(0, 1, 0.1))
     list_mse = []
     for lmbda in list_lmbda:
-        app, _ = SARSA_TDLambda(lmbda, iteration=20000)
+        app, _ = SARSA_TDLambda(lmbda, iteration=30000)
         Q = Approximator2Q(app)
         mse = np.mean((Q-Qstar)**2)
         list_mse.append(mse)
         
-    PrintLambdaMSE(list_lmbda, list_mse) 
+    name_mse = 'MSE loss with Function Approximation'
+    path_loss = join('results', name_mse + '.png')
+    PrintLambdaMSE(list_lmbda, list_mse, title=name_mse, path=path_loss) 
     
 def Section4Question2(Qstar):
-    app0, mse_0 = SARSA_TDLambda(lmbda=0, Qstar=Qstar, iteration=3000)
-    app1, mse_1 = SARSA_TDLambda(lmbda=1, Qstar=Qstar, iteration=3000)
+    app0, mse_0 = SARSA_TDLambda(lmbda=0, iteration=3000, Qstar=Qstar)
+    app1, mse_1 = SARSA_TDLambda(lmbda=1, iteration=3000, Qstar=Qstar)
     Q0 = Approximator2Q(app0)
     Q1 = Approximator2Q(app1)
     V0 = np.max(Q0, axis=-1)
     V1 = np.max(Q1, axis=-1)
-    PrintLoss([mse_0, mse_1], tags=['lambda=0', 'lambda=1'])
     
-    Print2DFunction(V0, range_dealer, range_player, title='V* for lambda=0')
-    Print2DFunction(V1, range_dealer, range_player, title='V* for lambda=1')
+    name_loss = 'training loss with Function Approximation'
+    path_loss = join('results', name_loss + '.png')
+    PrintLoss([mse_0, mse_1], tags=['lambda=0', 'lambda=1'], title=name_loss, path=path_loss)
+    
+    name_Q0 = 'Q value with Function Approximation (lambda=0)'
+    path_Q0 = join('results', name_Q0 + '.png')
+    name_Q1 = 'Q value with Function Approximation (lambda=1)'
+    path_Q1 = join('results', name_Q1 + '.png')
+    Print2DFunction(V0, range_dealer, range_player, title=name_Q0, path=path_Q0)
+    Print2DFunction(V1, range_dealer, range_player, title=name_Q1, path=path_Q1)
     
 if __name__=='__main__':
-    Qstar = GetQvalue()
+    # Qstar = GetQvalue()
     Section4Question1(Qstar)
     Section4Question2(Qstar)

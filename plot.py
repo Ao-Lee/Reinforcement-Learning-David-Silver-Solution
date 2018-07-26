@@ -6,7 +6,7 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 # cmap=cm.coolwarm 
 cmap=cm.rainbow
 
-def Print2DFunction(V, range_x, range_y, title='V*'):
+def Print2DFunction(V, range_x, range_y, title='', path=None):
     assert V.shape == (len(range_x), len(range_y))
     x,y = np.mgrid[range_x, range_y]
     fig = plt.figure(figsize=(12, 12))
@@ -17,17 +17,20 @@ def Print2DFunction(V, range_x, range_y, title='V*'):
     plt.title(title)
     plt.ylabel('player sum', size=18)
     plt.xlabel('dealer', size=18)
+    if path is not None: plt.savefig(path)
     plt.show()
     
     
-def PrintLambdaMSE(lmbda, mse):
+def PrintLambdaMSE(lmbda, mse, title='', path=None):
     plt.plot(lmbda, mse, 'ro')
     plt.plot(lmbda, mse)
+    plt.title(title)
     plt.ylabel('mse', size=18)
     plt.xlabel('lambda', size=18)
+    if path is not None: plt.savefig(path)
     plt.show()
     
-def PrintLoss(losses, tags):
+def PrintLoss(losses, tags, title='', path=None):
     assert len(losses) == len(tags)
     length = len(losses[0])
 
@@ -37,6 +40,8 @@ def PrintLoss(losses, tags):
         plt.plot(x, loss, label=tag)
         
     plt.legend(loc='best')
+    plt.title(title)
     plt.ylabel('mse', size=18)
     plt.xlabel('episodes', size=18)
+    if path is not None: plt.savefig(path)
     plt.show()
